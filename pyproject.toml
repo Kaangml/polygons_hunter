@@ -1,0 +1,32 @@
+[project]
+name = "polygon-hunter"
+version = "1.0.0"
+description = "Production-ready API for finding polygons containing geographic coordinates"
+authors = [{name = "Polygon Hunter Team"}]
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.24.0",
+    "pandas>=2.3.3",
+    "openpyxl>=3.1.5",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["services"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = ["E", "F", "W", "I"]
