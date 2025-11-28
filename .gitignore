@@ -27,6 +27,9 @@ Thumbs.db
 test_excel/*_output.geojson
 test_excel/polygon_bulunamayan.xlsx
 
+# S3 data (large gzip files - not tracked in git)
+s3_data/
+
 # Logs
 *.log
 
@@ -35,3 +38,4 @@ test_excel/polygon_bulunamayan.xlsx
 
 data2/*
 test_excel/*
+s3_data/*
