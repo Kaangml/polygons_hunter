@@ -1,0 +1,1 @@
+mapindata-curated-data S3 bucket name 

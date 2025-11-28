@@ -114,3 +114,4 @@ class QuadKeyInfo:
             "file": self.file,
             "file_exists": self.file_exists,
         }
+
