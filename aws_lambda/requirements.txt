@@ -1,0 +1,15 @@
+# AWS Lambda Dependencies
+# Python 3.11 runtime
+
+# FastAPI + Mangum for Lambda
+fastapi>=0.104.0
+mangum>=0.17.0
+pydantic>=2.5.0
+
+# AWS SDK
+boto3>=1.34.0
+
+# JSON processing (built-in but listed for clarity)
+# gzip - built-in
+# json - built-in
+# csv - built-in

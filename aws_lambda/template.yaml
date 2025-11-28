@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Polygon Hunter - Serverless API for polygon search
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Deployment environment
+  
+  S3BucketName:
+    Type: String
+    Default: polygons-hunter-data
+    Description: S3 bucket containing polygon data
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.11
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        S3_BUCKET: !Ref S3BucketName
+        INDEX_KEY: index/quadkey_index.csv
+        ENVIRONMENT: !Ref Environment
+
+Resources:
+  # Lambda Function
+  PolygonHunterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub polygon-hunter-${Environment}
+      Handler: handler.handler
+      CodeUri: .
+      Description: Polygon Hunter API - Find polygons containing coordinates
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref S3BucketName
+      Events:
+        # Root endpoint
+        Root:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PolygonHunterApi
+            Path: /
+            Method: ANY
+        # All other endpoints
+        ProxyPlus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PolygonHunterApi
+            Path: /{proxy+}
+            Method: ANY
+  
+  # API Gateway
+  PolygonHunterApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub polygon-hunter-api-${Environment}
+      StageName: !Ref Environment
+      Description: Polygon Hunter REST API
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        AllowOrigin: "'*'"
+      # Enable request compression
+      MinimumCompressionSize: 1024
+  
+  # S3 Bucket for polygon data (optional - create if doesn't exist)
+  PolygonDataBucket:
+    Type: AWS::S3::Bucket
+    Condition: CreateBucket
+    Properties:
+      BucketName: !Ref S3BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+Conditions:
+  CreateBucket: !Equals [!Ref Environment, 'dev']
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${PolygonHunterApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/
+  
+  FunctionArn:
+    Description: Lambda Function ARN
+    Value: !GetAtt PolygonHunterFunction.Arn
+  
+  S3Bucket:
+    Description: S3 Bucket for polygon data
+    Value: !Ref S3BucketName
+  
+  ApiId:
+    Description: API Gateway ID
+    Value: !Ref PolygonHunterApi
