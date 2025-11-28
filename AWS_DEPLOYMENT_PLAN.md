@@ -258,7 +258,10 @@ CMD ["handler.handler"]
 ## ✅ Checklist
 
 - [x] **ADIM 1:** `scripts/prepare_s3_data.py` oluştur ✅
-- [ ] **ADIM 2:** Gzip dosyaları ve index'i oluştur (local test)
+- [x] **ADIM 2:** Gzip dosyaları ve index'i oluştur (local test) ✅
+  - 266 dosya işlendi
+  - ~20.8 milyon polygon
+  - 8.6 GB → 1.7 GB (%80 küçülme)
 - [ ] **ADIM 3:** S3 bucket oluştur (AWS Console veya CLI)
 - [ ] **ADIM 4:** S3'e dosyaları yükle
 - [x] **ADIM 5:** `aws_lambda/` dizini oluştur ✅
