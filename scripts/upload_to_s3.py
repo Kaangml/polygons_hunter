@@ -5,19 +5,36 @@ S3 Yükleme Scripti
 Bu script s3_data/ dizinindeki hazırlanmış dosyaları AWS S3'e yükler.
 
 Gereksinimler:
-    - AWS CLI yapılandırılmış olmalı (aws configure)
+    - .env dosyasında AWS credentials tanımlı olmalı
     - boto3 kütüphanesi yüklü olmalı
 
 Kullanım:
-    python scripts/upload_to_s3.py --bucket polygons-hunter-data
-    python scripts/upload_to_s3.py --bucket polygons-hunter-data --create-bucket
-    python scripts/upload_to_s3.py --bucket polygons-hunter-data --region eu-central-1
+    python scripts/upload_to_s3.py
+    python scripts/upload_to_s3.py --create-bucket
+    python scripts/upload_to_s3.py --dry-run
 """
 
 import argparse
 import os
 import sys
 from pathlib import Path
+
+# .env dosyasını yükle
+def load_env():
+    """Load environment variables from .env file"""
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, value = line.split("=", 1)
+                    os.environ.setdefault(key.strip(), value.strip())
+        print(f"✅ .env dosyası yüklendi: {env_path}")
+    else:
+        print(f"⚠️  .env dosyası bulunamadı: {env_path}")
+
+load_env()
 
 try:
     import boto3
@@ -192,22 +209,26 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Örnekler:
-  python scripts/upload_to_s3.py --bucket my-bucket
-  python scripts/upload_to_s3.py --bucket my-bucket --create-bucket
-  python scripts/upload_to_s3.py --bucket my-bucket --region us-west-2 --dry-run
+  python scripts/upload_to_s3.py
+  python scripts/upload_to_s3.py --create-bucket
+  python scripts/upload_to_s3.py --dry-run
         """
     )
     
+    # .env'den default değerleri al
+    default_bucket = os.environ.get("S3_BUCKET_NAME", "polygons-hunter-data")
+    default_region = os.environ.get("AWS_DEFAULT_REGION", "eu-central-1")
+    
     parser.add_argument(
         "--bucket", "-b",
-        default="polygons-hunter-data",
-        help="S3 bucket adı (varsayılan: polygons-hunter-data)"
+        default=default_bucket,
+        help=f"S3 bucket adı (varsayılan: {default_bucket})"
     )
     
     parser.add_argument(
         "--region", "-r",
-        default="eu-central-1",
-        help="AWS region (varsayılan: eu-central-1)"
+        default=default_region,
+        help=f"AWS region (varsayılan: {default_region})"
     )
     
     parser.add_argument(
