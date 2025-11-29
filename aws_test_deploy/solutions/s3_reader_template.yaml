@@ -1,0 +1,59 @@
+# AWS SAM Template - S3 Reader Lambda - ÇÖZÜM
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  S3 Reader Lambda - AWS Öğrenme Egzersizi
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Default: polygons-hunter-data
+    Description: Okunacak S3 bucket adı
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.9
+    MemorySize: 256
+    Architectures:
+      - arm64
+
+Resources:
+  S3ReaderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: handler.lambda_handler
+      Description: "S3'ten dosya okuyan Lambda"
+      
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref S3BucketName
+      
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource:
+                - !Sub "arn:aws:s3:::${S3BucketName}"
+                - !Sub "arn:aws:s3:::${S3BucketName}/*"
+      
+      Events:
+        GetFileApi:
+          Type: Api
+          Properties:
+            Path: /file
+            Method: get
+
+Outputs:
+  S3ReaderApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/file"
+    
+  S3ReaderFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt S3ReaderFunction.Arn

@@ -1,0 +1,38 @@
+# AWS SAM Template - Hello World Lambda - ÇÖZÜM
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Hello World Lambda - AWS Öğrenme Egzersizi
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.9
+    MemorySize: 128
+    Architectures:
+      - arm64
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: handler.lambda_handler
+      Description: "Hello World Lambda fonksiyonu"
+      
+      Events:
+        HelloWorldApi:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello"
+    
+  HelloWorldFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn

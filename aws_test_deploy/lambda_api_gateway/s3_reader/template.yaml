@@ -1,0 +1,69 @@
+# AWS SAM Template - S3 Reader Lambda
+# SEN TAMAMLAYACAKSIN!
+
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  S3 Reader Lambda - AWS Öğrenme Egzersizi
+
+# Parametreler - Deploy sırasında değer verilebilir
+Parameters:
+  S3BucketName:
+    Type: String
+    Default: polygons-hunter-data
+    Description: Okunacak S3 bucket adı
+
+Globals:
+  Function:
+    # TODO 1: Ayarları tamamla
+    Timeout: # SENİN KODUN
+    Runtime: # SENİN KODUN
+    MemorySize: # SENİN KODUN
+    Architectures:
+      - arm64
+
+Resources:
+  S3ReaderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: # SENİN KODUN
+      Handler: # SENİN KODUN
+      Description: "S3'ten dosya okuyan Lambda"
+      
+      # TODO 2: Ortam değişkenlerini tanımla
+      # Lambda fonksiyonun os.environ ile erişeceği değişkenler
+      Environment:
+        Variables:
+          S3_BUCKET: # SENİN KODUN - !Ref S3BucketName kullanabilirsin
+      
+      # TODO 3: IAM Policy tanımla
+      # Lambda'nın S3'e erişmesi için yetki gerekli
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: # SENİN KODUN - Allow veya Deny
+              Action:
+                - # SENİN KODUN - s3:GetObject
+                - # SENİN KODUN - s3:ListBucket (opsiyonel ama faydalı)
+              Resource:
+                # Bucket için
+                - !Sub "arn:aws:s3:::${S3BucketName}"
+                # Bucket içindeki objeler için
+                - !Sub "arn:aws:s3:::${S3BucketName}/*"
+      
+      # TODO 4: API Gateway event'i tanımla
+      Events:
+        GetFileApi:
+          Type: Api
+          Properties:
+            Path: # SENİN KODUN
+            Method: # SENİN KODUN
+
+Outputs:
+  S3ReaderApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/file"
+    
+  S3ReaderFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt S3ReaderFunction.Arn
